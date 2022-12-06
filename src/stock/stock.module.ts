@@ -6,4 +6,4 @@ import { StockController } from './stock.controller';
   providers: [StockService],
   controllers: [StockController],
 })
-export class StockModule { }
+export class StockModule {}
