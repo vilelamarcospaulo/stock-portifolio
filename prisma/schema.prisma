@@ -9,3 +9,19 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id         Int     @id @default(autoincrement())
+  email      String  @unique
+  name       String?
+  portifolio Stock[]
+}
+
+model Stock {
+  id          Int    @id @default(autoincrement())
+  ticker      String
+  amount      Float  @default(0.00)
+  middlePrice Float  @default(0.00)
+  User        User?  @relation(fields: [userId], references: [id])
+  userId      Int?
+}
