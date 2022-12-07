@@ -9,6 +9,7 @@ export class PortfolioController {
   @Get()
   async get(): Promise<UserPortfolioDto> {
     const userId = 1; // TODO :: get logged user with authModule
-    return undefined as any;
+    const userStocks = await this.stockService.buildPortfolioForUser(userId);
+    return new UserPortfolioDto(userStocks);
   }
 }
