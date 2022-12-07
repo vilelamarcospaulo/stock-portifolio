@@ -1,18 +1,61 @@
+import * as request from 'supertest';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PortfolioController } from './portfolio.controller';
+import { PrismaService } from '../prisma/prisma.service';
+import { prismaServiceMocked } from '../prisma/prisma.service.mock';
+import { AppModule } from '../app.module';
 
 describe('PortfolioController', () => {
-  let controller: PortfolioController;
+  let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PortfolioController],
-    }).compile();
+      imports: [AppModule],
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prismaServiceMocked)
+      .compile();
 
-    controller = module.get<PortfolioController>(PortfolioController);
+    app = module.createNestApplication();
+    await app.init();
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  it('should return user portfolio based on his stocks', async () => {
+    // ARRANGE
+    const stock1 = {
+      id: 1,
+      ticker: 'FOO3',
+      amount: 10,
+      middlePrice: 10,
+      userId: 0,
+    };
+    const stock2 = { ...stock1, ticker: 'TRAB3', amount: 5 };
+    prismaServiceMocked.stock.findMany.mockResolvedValue([stock1, stock2]);
+
+    // ACT
+    const result = await request(app.getHttpServer())
+      .get('/portfolio')
+      .expect(200);
+
+    // ASSERT
+    expect(result.body).toEqual({
+      stocks: [
+        {
+          amount: 10,
+          middlePrice: 10,
+          ticker: 'FOO3',
+          total: 190,
+        },
+        {
+          amount: 5,
+          middlePrice: 10,
+          ticker: 'TRAB3',
+          total: 190,
+        },
+      ],
+    });
+    expect(prismaServiceMocked.stock.findMany).toBeCalledWith({
+      where: { userId: 1 },
+    });
   });
 });
