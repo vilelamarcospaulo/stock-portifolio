@@ -16,6 +16,6 @@ export class OrderController {
     @User() user: AuthUserDto,
     @Body() createOrderParams: CreateOrderDto,
   ): Promise<void> {
-    return this.orderService.registerOrder(user.userId, createOrderParams);
+    return this.orderService.processNewOrder(user.userId, createOrderParams);
   }
 }

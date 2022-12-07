@@ -1,18 +1,122 @@
+import * as request from 'supertest';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { OrderController } from './order.controller';
+import { PrismaService } from '../prisma/prisma.service';
+import { prismaServiceMocked } from '../prisma/prisma.service.mock';
+import { AppModule } from '../app.module';
+import { CreateOrderDto } from './dto/create-order.dto';
 
-describe('OrderController', () => {
-  let controller: OrderController;
+describe('PortfolioController', () => {
+  let app: INestApplication;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [OrderController],
-    }).compile();
+      imports: [AppModule],
+    })
+      .overrideProvider(PrismaService)
+      .useValue(prismaServiceMocked)
+      .compile();
 
-    controller = module.get<OrderController>(OrderController);
+    app = module.createNestApplication();
+    await app.init();
   });
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
+  const createOrderParams: CreateOrderDto = {
+    ticker: 'FOO3',
+    amount: 2,
+    price: 100,
+    executionDate: new Date(2021, 9, 15),
+  };
+
+  it('should add new order and a position to user`s portfolio', async () => {
+    // ARRANGE
+    prismaServiceMocked.position.findFirst.mockResolvedValue(null);
+
+    // ACT
+    await request(app.getHttpServer())
+      .post('/order')
+      .send(createOrderParams)
+      .expect(204);
+
+    // ASSERT
+    expect(prismaServiceMocked.position.findFirst).toBeCalledWith({
+      where: { userId: 1, ticker: 'FOO3' },
+    });
+
+    expect(prismaServiceMocked.order.create).toBeCalledWith({
+      data: {
+        amount: 2,
+        executionDate: '2021-10-15T03:00:00.000Z',
+        price: 100,
+        ticker: 'FOO3',
+        userId: 1,
+      },
+    });
+
+    expect(prismaServiceMocked.position.upsert).toBeCalledWith({
+      where: { id: 0 },
+      create: {
+        id: 0,
+        ticker: 'FOO3',
+        amount: 2,
+        middlePrice: 100,
+        userId: 1,
+      },
+      update: {
+        id: 0,
+        amount: 2,
+        middlePrice: 100,
+      },
+    });
+  });
+
+  it('should add new order and update the existent position', async () => {
+    // ARRANGE
+    prismaServiceMocked.position.findFirst.mockResolvedValue({
+      id: 1,
+      ticker: 'FOO3',
+      amount: 10,
+      middlePrice: 50,
+      userId: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    // ACT
+    await request(app.getHttpServer())
+      .post('/order')
+      .send(createOrderParams)
+      .expect(204);
+
+    // ASSERT
+    expect(prismaServiceMocked.position.findFirst).toBeCalledWith({
+      where: { userId: 1, ticker: 'FOO3' },
+    });
+
+    expect(prismaServiceMocked.order.create).toBeCalledWith({
+      data: {
+        amount: 2,
+        executionDate: '2021-10-15T03:00:00.000Z',
+        price: 100,
+        ticker: 'FOO3',
+        userId: 1,
+      },
+    });
+
+    expect(prismaServiceMocked.position.upsert).toBeCalledWith({
+      where: { id: 1 },
+      create: {
+        id: 1,
+        ticker: 'FOO3',
+        amount: 12,
+        middlePrice: 58.33,
+        userId: 1,
+      },
+      update: {
+        id: 1,
+        amount: 12,
+        middlePrice: 58.33,
+      },
+    });
   });
 });
