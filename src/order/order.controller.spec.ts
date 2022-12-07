@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { prismaServiceMocked } from '../prisma/prisma.service.mock';
 import { AppModule } from '../app.module';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, OrderType } from './dto/create-order.dto';
 
 describe('PortfolioController', () => {
   let app: INestApplication;
@@ -21,7 +21,8 @@ describe('PortfolioController', () => {
     await app.init();
   });
 
-  const createOrderParams: CreateOrderDto = {
+  const createBuyOrderParams: CreateOrderDto = {
+    type: OrderType.BUY,
     ticker: 'FOO3',
     amount: 2,
     price: 100,
@@ -35,7 +36,7 @@ describe('PortfolioController', () => {
     // ACT
     await request(app.getHttpServer())
       .post('/order')
-      .send(createOrderParams)
+      .send(createBuyOrderParams)
       .expect(204);
 
     // ASSERT
@@ -49,6 +50,7 @@ describe('PortfolioController', () => {
         executionDate: '2021-10-15T03:00:00.000Z',
         price: 100,
         ticker: 'FOO3',
+        type: 'BUY',
         userId: 1,
       },
     });
@@ -85,7 +87,7 @@ describe('PortfolioController', () => {
     // ACT
     await request(app.getHttpServer())
       .post('/order')
-      .send(createOrderParams)
+      .send(createBuyOrderParams)
       .expect(204);
 
     // ASSERT
@@ -99,6 +101,7 @@ describe('PortfolioController', () => {
         executionDate: '2021-10-15T03:00:00.000Z',
         price: 100,
         ticker: 'FOO3',
+        type: 'BUY',
         userId: 1,
       },
     });
