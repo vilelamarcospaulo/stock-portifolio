@@ -31,9 +31,15 @@ model Position {
   updatedAt   DateTime @updatedAt
 }
 
+enum OrderType {
+  BUY
+  SELL
+}
+
 model Order {
   id            Int       @id @default(autoincrement())
   ticker        String
+  type          OrderType
   amount        Float     @default(0.00)
   price         Float     @default(0.00)
   executionDate DateTime?
