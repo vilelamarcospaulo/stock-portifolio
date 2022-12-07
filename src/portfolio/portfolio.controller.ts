@@ -1,4 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
+import { User } from 'src/auth/auth.service';
+import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
 import { UserPortfolioDto } from './dto/user-portfolio.dto';
 import { PortfolioService } from './portfolio.service';
 
@@ -7,9 +9,10 @@ export class PortfolioController {
   constructor(private readonly stockService: PortfolioService) {}
 
   @Get()
-  async get(): Promise<UserPortfolioDto> {
-    const userId = 1; // TODO :: get logged user with authModule
-    const userStocks = await this.stockService.buildPortfolioForUser(userId);
+  async get(@User() user: AuthUserDto): Promise<UserPortfolioDto> {
+    const userStocks = await this.stockService.buildPortfolioForUser(
+      user.userId,
+    );
     return new UserPortfolioDto(userStocks);
   }
 }
