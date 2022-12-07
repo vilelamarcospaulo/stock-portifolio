@@ -5,9 +5,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class PortfolioService {
   constructor(private prisma: PrismaService) {}
 
-  async buildPortfolioForUser(userId: number) {
+  async byUser(userId: number) {
     const userStocks = await this.prisma.stock.findMany({
-      where: { userId: userId },
+      where: { userId },
     });
 
     return userStocks;

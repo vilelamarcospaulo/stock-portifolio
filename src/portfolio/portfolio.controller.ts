@@ -10,9 +10,7 @@ export class PortfolioController {
 
   @Get()
   async get(@User() user: AuthUserDto): Promise<UserPortfolioDto> {
-    const userStocks = await this.stockService.buildPortfolioForUser(
-      user.userId,
-    );
+    const userStocks = await this.stockService.byUser(user.userId);
     return new UserPortfolioDto(userStocks);
   }
 }
