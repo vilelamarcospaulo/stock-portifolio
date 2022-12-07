@@ -11,11 +11,11 @@ datasource db {
 }
 
 model User {
-  id         Int     @id @default(autoincrement())
-  email      String  @unique
-  name       String?
-  Portifolio Stock[]
-  Order      Order[]
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  name      String?
+  Portfolio Stock[]
+  Order     Order[]
 }
 
 model Stock {
