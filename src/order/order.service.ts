@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateOrderDto } from './dto/create-order.dto';
+import { CreateOrderDto, OrderType } from './dto/create-order.dto';
 
 interface IPositionValues {
   id?: number;
@@ -60,17 +60,43 @@ export class OrderService {
     current: IPositionValues,
     createOrderParams: CreateOrderDto,
   ): IPositionValues {
-    const totalInvested = current.amount * current.middlePrice;
-    const orderTotalValue = createOrderParams.amount * createOrderParams.price;
+    const { newAmount, newMiddlePrice } =
+      createOrderParams.type === OrderType.BUY
+        ? this.calculatePositionForBuying(current, createOrderParams)
+        : this.calculatePositionForSelling(current, createOrderParams);
 
-    const totalInvestedAfter = totalInvested + orderTotalValue;
-    const newAmount = current.amount + createOrderParams.amount;
-    const newMiddlePrice = totalInvestedAfter / newAmount;
+    if (newAmount < 0) {
+      throw new ConflictException('Current portfolio can`t process this ORDER');
+    }
 
     return {
       id: current.id,
       amount: parseFloat(newAmount.toFixed(2)),
       middlePrice: parseFloat(newMiddlePrice.toFixed(2)),
     };
+  }
+
+  private calculatePositionForSelling(
+    current: IPositionValues,
+    newOrderParams: CreateOrderDto,
+  ) {
+    const newAmount = current.amount - newOrderParams.amount;
+    const newMiddlePrice = current.middlePrice; // WHEN SELLING STOCKS, YOUR PM DON'T CHANGE
+
+    return { newAmount, newMiddlePrice };
+  }
+
+  private calculatePositionForBuying(
+    current: IPositionValues,
+    newOrderParams: CreateOrderDto,
+  ) {
+    const totalInvested = current.amount * current.middlePrice;
+    const orderTotalValue = newOrderParams.amount * newOrderParams.price;
+    const totalInvestedAfter = totalInvested + orderTotalValue;
+
+    const newAmount = current.amount + newOrderParams.amount;
+    const newMiddlePrice = totalInvestedAfter / newAmount;
+
+    return { newAmount, newMiddlePrice };
   }
 }

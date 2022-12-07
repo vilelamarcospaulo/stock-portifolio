@@ -29,6 +29,34 @@ describe('PortfolioController', () => {
     executionDate: new Date(2021, 9, 15),
   };
 
+  it('should throw conflict when selling more than have', async () => {
+    // ARRANGE
+    prismaServiceMocked.position.findFirst.mockResolvedValue(null);
+
+    // ACT
+    const result = await request(app.getHttpServer())
+      .post('/order')
+      .send({
+        ...createBuyOrderParams,
+        type: OrderType.SELL,
+      })
+      .expect(409);
+
+    // ASSERT
+    expect(result.body).toEqual({
+      error: 'Conflict',
+      message: 'Current portfolio can`t process this ORDER',
+      statusCode: 409,
+    });
+
+    expect(prismaServiceMocked.position.findFirst).toBeCalledWith({
+      where: { userId: 1, ticker: 'FOO3' },
+    });
+
+    expect(prismaServiceMocked.order.create).toBeCalledTimes(0);
+    expect(prismaServiceMocked.position.upsert).toBeCalledTimes(0);
+  });
+
   it('should add new order and a position to user`s portfolio', async () => {
     // ARRANGE
     prismaServiceMocked.position.findFirst.mockResolvedValue(null);
