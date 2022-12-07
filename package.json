@@ -56,6 +56,8 @@
     "typescript": "^4.7.4"
   },
   "jest": {
+    "clearMocks": true,
+    "collectCoverage": true,
     "moduleFileExtensions": [
       "js",
       "json",
@@ -73,6 +75,11 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
+    "coveragePathIgnorePatterns": [
+      "node_modules/",
+      "main.ts",
+      "prisma/"
+    ],
     "testEnvironment": "node"
   }
 }

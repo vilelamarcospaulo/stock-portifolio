@@ -105,3 +105,4 @@ dist
 
 #local env
 pg-data/
+coverage/
