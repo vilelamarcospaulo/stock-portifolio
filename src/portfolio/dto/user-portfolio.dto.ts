@@ -1,4 +1,4 @@
-import { Stock } from '@prisma/client';
+import { Position } from '@prisma/client';
 
 class UserStock {
   ticker: string;
@@ -13,7 +13,7 @@ class UserStock {
 export class UserPortfolioDto {
   stocks: UserStock[];
 
-  constructor(userStocks: Stock[]) {
+  constructor(userStocks: Position[]) {
     this.stocks = userStocks.map(({ ticker, amount, middlePrice }) => ({
       ticker,
       amount,

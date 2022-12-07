@@ -28,9 +28,11 @@ describe('PortfolioController', () => {
       amount: 10,
       middlePrice: 10,
       userId: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     const stock2 = { ...stock1, ticker: 'TRAB3', amount: 5 };
-    prismaServiceMocked.stock.findMany.mockResolvedValue([stock1, stock2]);
+    prismaServiceMocked.position.findMany.mockResolvedValue([stock1, stock2]);
 
     // ACT
     const result = await request(app.getHttpServer())
@@ -54,7 +56,7 @@ describe('PortfolioController', () => {
         },
       ],
     });
-    expect(prismaServiceMocked.stock.findMany).toBeCalledWith({
+    expect(prismaServiceMocked.position.findMany).toBeCalledWith({
       where: { userId: 1 },
     });
   });

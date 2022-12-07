@@ -6,10 +6,8 @@ export class PortfolioService {
   constructor(private prisma: PrismaService) {}
 
   async byUser(userId: number) {
-    const userStocks = await this.prisma.stock.findMany({
+    return this.prisma.position.findMany({
       where: { userId },
     });
-
-    return userStocks;
   }
 }
