@@ -20,22 +20,29 @@ describe('PositionController', () => {
     await app.init();
   });
 
+  const mockedPosition = {
+    id: 1,
+    ticker: 'FOO3',
+    amount: 10,
+    middlePrice: 10,
+    userId: 1,
+    score: 1,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
   describe('list position', () => {
     it('should return all user positions', async () => {
       // ARRANGE
-      const position1 = {
-        id: 1,
-        ticker: 'FOO3',
-        amount: 10,
-        middlePrice: 10,
-        userId: 0,
-        score: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+      const position2 = {
+        ...mockedPosition,
+        id: 11,
+        ticker: 'TRAB3',
+        amount: 5,
       };
-      const position2 = { ...position1, id: 11, ticker: 'TRAB3', amount: 5 };
+
       prismaServiceMocked.position.findMany.mockResolvedValue([
-        position1,
+        mockedPosition,
         position2,
       ]);
 
@@ -68,17 +75,6 @@ describe('PositionController', () => {
   });
 
   describe('delete position', () => {
-    const position = {
-      id: 1,
-      ticker: 'FOO3',
-      amount: 10,
-      middlePrice: 10,
-      userId: 1,
-      score: 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
     it('should throw 404 when not found', async () => {
       // ARRANGE
       prismaServiceMocked.position.findUnique.mockResolvedValue(null);
@@ -102,7 +98,7 @@ describe('PositionController', () => {
     it('should throw 403 when not position belongs to another user', async () => {
       // ARRANGE
       prismaServiceMocked.position.findUnique.mockResolvedValue({
-        ...position,
+        ...mockedPosition,
         userId: 2,
       });
 
@@ -125,7 +121,7 @@ describe('PositionController', () => {
 
     it('should throw 409 when not position not zeroed', async () => {
       // ARRANGE
-      prismaServiceMocked.position.findUnique.mockResolvedValue(position);
+      prismaServiceMocked.position.findUnique.mockResolvedValue(mockedPosition);
 
       // ACT
       const result = await request(app.getHttpServer())
@@ -147,7 +143,7 @@ describe('PositionController', () => {
     it('should delete the position', async () => {
       // ARRANGE
       prismaServiceMocked.position.findUnique.mockResolvedValue({
-        ...position,
+        ...mockedPosition,
         amount: 0,
       });
 
@@ -160,6 +156,28 @@ describe('PositionController', () => {
       });
       expect(prismaServiceMocked.position.delete).toHaveBeenCalledWith({
         where: { id: 121 },
+      });
+    });
+  });
+
+  describe('update position score', () => {
+    it('should patch the position', async () => {
+      // ARRANGE
+      prismaServiceMocked.position.findUnique.mockResolvedValue(mockedPosition);
+
+      // ACT
+      await request(app.getHttpServer())
+        .patch('/position/121')
+        .send({ score: 12 })
+        .expect(204);
+
+      // ASSERT
+      expect(prismaServiceMocked.position.findUnique).toBeCalledWith({
+        where: { id: 121 },
+      });
+      expect(prismaServiceMocked.position.update).toHaveBeenCalledWith({
+        where: { id: 121 },
+        data: { score: 12 },
       });
     });
   });
