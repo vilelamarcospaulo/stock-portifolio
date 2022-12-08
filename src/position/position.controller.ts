@@ -10,16 +10,20 @@ import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/auth.service';
 import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
 import { PositionDto } from './dto/position.dto';
+import { PositionRepository } from './position.repo';
 import { PositionService } from './position.service';
 
 @ApiTags('Position')
 @Controller('position')
 export class PositionController {
-  constructor(private readonly positionService: PositionService) {}
+  constructor(
+    private readonly positionService: PositionService,
+    private readonly positionRepository: PositionRepository,
+  ) {}
 
   @Get()
   async get(@User() user: AuthUserDto): Promise<PositionDto[]> {
-    const positions = await this.positionService.byUser(user.userId);
+    const positions = await this.positionRepository.findByUser(user.userId);
     const data = positions.map(PositionDto.fromModel);
 
     return data;

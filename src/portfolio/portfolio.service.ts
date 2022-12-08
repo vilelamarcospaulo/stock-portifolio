@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PositionService } from 'src/position/position.service';
+import { PositionRepository } from 'src/position/position.repo';
 
 @Injectable()
 export class PortfolioService {
-  constructor(private positionService: PositionService) {}
+  constructor(private positionRepository: PositionRepository) {}
 
-  async byUser(userId: number) {
-    return this.positionService.byUser(userId);
+  async findByUser(userId: number) {
+    return this.positionRepository.findByUser(userId);
   }
 }

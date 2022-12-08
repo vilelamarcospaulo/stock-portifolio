@@ -114,7 +114,7 @@ describe('PositionController', () => {
       // ASSERT
       expect(result.body).toEqual({
         error: 'Forbidden',
-        message: 'Only able to DELETE your own position',
+        message: 'Only able to manage your own position',
         statusCode: 403,
       });
       expect(prismaServiceMocked.position.findUnique).toBeCalledWith({
