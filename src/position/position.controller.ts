@@ -1,4 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/auth.service';
 import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
@@ -16,5 +23,14 @@ export class PositionController {
     const data = positions.map(PositionDto.fromModel);
 
     return data;
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  async delete(
+    @User() user: AuthUserDto,
+    @Param('id', ParseIntPipe) positionId: number,
+  ) {
+    await this.positionService.deletePosition(user.userId, positionId);
   }
 }
