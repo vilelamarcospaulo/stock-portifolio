@@ -10,6 +10,7 @@ class UserStock {
   total: number;
 }
 
+// TODO :: return all analyses results, from user wallet
 export class UserPortfolioDto {
   stocks: UserStock[];
 

@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PositionService } from 'src/position/position.service';
 
 @Injectable()
 export class PortfolioService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private positionService: PositionService) {}
 
   async byUser(userId: number) {
-    return this.prisma.position.findMany({
-      where: { userId },
-    });
+    return this.positionService.byUser(userId);
   }
 }
