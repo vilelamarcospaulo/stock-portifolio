@@ -91,6 +91,7 @@ describe('PortfolioController', () => {
         amount: 2,
         middlePrice: 100,
         userId: 1,
+        score: 0,
       },
       update: {
         id: 0,
@@ -108,6 +109,7 @@ describe('PortfolioController', () => {
       amount: 10,
       middlePrice: 50,
       userId: 0,
+      score: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
@@ -142,6 +144,7 @@ describe('PortfolioController', () => {
         amount: 12,
         middlePrice: 58.33,
         userId: 1,
+        score: 0,
       },
       update: {
         id: 1,

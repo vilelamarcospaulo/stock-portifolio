@@ -28,6 +28,7 @@ describe('PortfolioController', () => {
       amount: 10,
       middlePrice: 10,
       userId: 0,
+      score: 1,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

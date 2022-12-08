@@ -31,6 +31,7 @@ export class OrderService {
         create: {
           userId,
           ticker: createOrderParams.ticker,
+          score: 0,
           ...nextPosition,
         },
         update: nextPosition,
