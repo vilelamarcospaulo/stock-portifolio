@@ -1,0 +1,14 @@
+// > ORDER
+//   >> GET ALL
+//   >> DEL => Recalc position
+
+// > PORTFOLIO
+//   >> QUERY NEW APORT ON POSITIONS
+//      SHOULD BE BASED ON SCORE OF POSITION
+
+
+// > Auth
+//   >> Update AuthModule, generate app jwt
+//      > Log with GMAIL, AppleId
+
+

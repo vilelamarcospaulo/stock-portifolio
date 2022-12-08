@@ -16,11 +16,3 @@ async function bootstrap() {
   await app.listen(3000);
 }
 bootstrap();
-
-// > POSITIONS
-//   >> DEL => AMOUNT === 0
-//     >> PATCH { score: 15 >= x >= 0 }
-
-// > ORDER
-//   >> GET ALL
-//     >> DEL => Recalc position
