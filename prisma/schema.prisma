@@ -25,6 +25,7 @@ model Position {
   ticker      String
   amount      Float    @default(0.00)
   middlePrice Float    @default(0.00)
+  score       Int
   User        User?    @relation(fields: [userId], references: [id])
   userId      Int?
   createdAt   DateTime @default(now())
@@ -47,4 +48,19 @@ model Order {
   userId        Int?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+}
+
+enum StockType {
+  FII
+  STOCk
+  ETF
+}
+
+model Stock {
+  id        Int       @id @default(autoincrement())
+  ticker    String
+  type      StockType
+  score     Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
