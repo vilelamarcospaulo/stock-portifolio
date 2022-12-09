@@ -20,45 +20,79 @@ describe('PortfolioController', () => {
     await app.init();
   });
 
-  it('should return user portfolio based on his stocks', async () => {
-    // ARRANGE
-    const stock1 = {
-      id: 1,
-      ticker: 'FOO3',
-      amount: 10,
-      middlePrice: 10,
-      userId: 0,
-      score: 1,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    const stock2 = { ...stock1, ticker: 'TRAB3', amount: 5 };
-    prismaServiceMocked.position.findMany.mockResolvedValue([stock1, stock2]);
+  const baseRecord = {
+    userId: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  const stock1 = {
+    id: 1,
+    ticker: 'FOO3',
+    amount: 7,
+    middlePrice: 10,
+    score: 8,
+    ...baseRecord,
+  };
+  const stock2 = {
+    id: 2,
+    ticker: 'TRAB3',
+    amount: 5,
+    middlePrice: 3,
+    score: 4,
+    ...baseRecord,
+  };
 
-    // ACT
-    const result = await request(app.getHttpServer())
-      .get('/portfolio')
-      .expect(200);
+  describe('get portfolio', () => {
+    it('should return user portfolio based on his stocks', async () => {
+      // ARRANGE
+      prismaServiceMocked.position.findMany.mockResolvedValue([stock1, stock2]);
 
-    // ASSERT
-    expect(result.body).toEqual({
-      stocks: [
-        {
-          amount: 10,
-          middlePrice: 10,
-          ticker: 'FOO3',
-          total: 190,
-        },
-        {
-          amount: 5,
-          middlePrice: 10,
-          ticker: 'TRAB3',
-          total: 190,
-        },
-      ],
+      // ACT
+      const result = await request(app.getHttpServer())
+        .get('/portfolio')
+        .expect(200);
+
+      // ASSERT
+      expect(result.body).toEqual({
+        stocks: [
+          {
+            amount: 7,
+            middlePrice: 10,
+            ticker: 'FOO3',
+            total: 190,
+          },
+          {
+            amount: 5,
+            middlePrice: 3,
+            ticker: 'TRAB3',
+            total: 190,
+          },
+        ],
+      });
+      expect(prismaServiceMocked.position.findMany).toBeCalledWith({
+        where: { userId: 1 },
+      });
     });
-    expect(prismaServiceMocked.position.findMany).toBeCalledWith({
-      where: { userId: 1 },
+  });
+
+  describe('get portfolio distribution', () => {
+    it('should return user portfolio distribution goal and current distribution', async () => {
+      // ARRANGE
+      prismaServiceMocked.position.findMany.mockResolvedValue([stock1, stock2]);
+
+      // ACT
+      const result = await request(app.getHttpServer())
+        .get('/portfolio/distribution')
+        .expect(200);
+
+      // ASSERT
+      expect(result.body).toEqual([
+        { suggestion: '0.67', current: '0.82', ticker: 'FOO3' },
+        { suggestion: '0.33', current: '0.18', ticker: 'TRAB3' },
+      ]);
+      expect(prismaServiceMocked.position.findMany).toBeCalledWith({
+        where: { userId: 1 },
+      });
     });
   });
 });

@@ -4,10 +4,16 @@ import { PortfolioController } from './portfolio.controller';
 import { PositionModule } from 'src/position/position.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PositionRepository } from 'src/position/position.repo';
+import { PortfolioDistributionService } from './portfolio-distribution.service';
 
 @Module({
   imports: [PrismaService, PositionModule],
-  providers: [PrismaService, PositionRepository, PortfolioService],
+  providers: [
+    PrismaService,
+    PositionRepository,
+    PortfolioDistributionService,
+    PortfolioService,
+  ],
   controllers: [PortfolioController],
 })
 export class PortfolioModule {}
