@@ -6,8 +6,6 @@ import { UserPortfolioDto } from './dto/user-portfolio.dto';
 import { PortfolioDistributionService } from './portfolio-distribution.service';
 import { PortfolioService } from './portfolio.service';
 
-type r = { [key: string]: number };
-
 @ApiTags('Portfolio')
 @Controller('portfolio')
 export class PortfolioController {
