@@ -1,3 +1,3 @@
 export interface StockProviderService {
-  getLastStockPrice(ticker: string): number;
+  getLastStockPrice(ticker: string): Promise<number>;
 }

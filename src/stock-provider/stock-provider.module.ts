@@ -1,7 +1,9 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { StockProviderService } from './stock-provider.service';
+import { YahooStockProvider } from './yahoo/yahoo-provider.service';
 
 @Module({
-  providers: [StockProviderService]
+  imports: [HttpModule],
+  providers: [YahooStockProvider],
 })
 export class StockProviderModule {}
