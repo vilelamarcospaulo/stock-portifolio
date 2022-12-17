@@ -22,15 +22,15 @@ export class YahooStockProvider implements StockProviderService {
   }
 
   async fetchYahooStock(ticker: string): Promise<YahooStockResponseDto> {
-    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${ticker}&fields=regularMarketPrice`;
+    const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${ticker}.SA&fields=regularMarketPrice`;
 
-    const response = await this.httpService.axiosRef.get(url);
-    if (response.status !== 200) {
+    try {
+      const response = await this.httpService.axiosRef.get(url);
+      return response.data;
+    } catch (err) {
       throw new InternalServerErrorException(
         'Error during HTTP request to Yahoo',
       );
     }
-
-    return response.data;
   }
 }
