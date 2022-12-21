@@ -4,14 +4,17 @@ import { PortfolioController } from './portfolio.controller';
 import { PositionModule } from 'src/position/position.module';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { PositionRepository } from 'src/position/position.repo';
-import { PortfolioDistributionService } from './portfolio-distribution.service';
+import { PortfolioValuation } from './use-case/portfolio-valuation.service';
+import { PortfolioDistribution } from './use-case/portfolio-distribution.service';
+import { StockProviderModule } from 'src/stock-provider/stock-provider.module';
 
 @Module({
-  imports: [PrismaService, PositionModule],
+  imports: [PrismaService, PositionModule, StockProviderModule],
   providers: [
     PrismaService,
     PositionRepository,
-    PortfolioDistributionService,
+    PortfolioValuation,
+    PortfolioDistribution,
     PortfolioService,
   ],
   controllers: [PortfolioController],

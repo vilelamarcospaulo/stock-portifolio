@@ -1,9 +1,9 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/auth.service';
 import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
 import { UserPortfolioDto } from './dto/user-portfolio.dto';
-import { PortfolioDistributionService } from './portfolio-distribution.service';
+import { PortfolioDistribution } from './use-case/portfolio-distribution.service';
 import { PortfolioService } from './portfolio.service';
 
 @ApiTags('Portfolio')
@@ -11,7 +11,7 @@ import { PortfolioService } from './portfolio.service';
 export class PortfolioController {
   constructor(
     private readonly portfolioService: PortfolioService,
-    private readonly portfolioDistributionService: PortfolioDistributionService,
+    private readonly portfolioDistribution: PortfolioDistribution,
   ) {}
 
   @Get()
@@ -24,12 +24,7 @@ export class PortfolioController {
 
   @Get('distribution')
   async distribution(@User() user: AuthUserDto) {
-    const { proportions } =
-      await this.portfolioDistributionService.calcPortfolioDistribution(
-        user.userId,
-      );
-
-    return proportions;
+    return this.portfolioDistribution.calcPortfolioDistribution(user.userId);
   }
 
   // @Get('aport-suggestion')
