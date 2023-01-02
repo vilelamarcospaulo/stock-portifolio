@@ -10,6 +10,14 @@ export class OrderService {
     private processOrderService: ProcessOrderService,
   ) {}
 
+  async listUserOrders(userId: number, ticker?: string) {
+    const orders = await this.prisma.order.findMany({
+      where: { userId, ticker },
+    });
+
+    return orders;
+  }
+
   async processNewOrder(userId: number, createOrderParams: CreateOrderDto) {
     return this.processOrderService.processNewOrder(userId, createOrderParams);
   }

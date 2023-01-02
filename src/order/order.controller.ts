@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/auth.service';
 import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
@@ -17,5 +17,11 @@ export class OrderController {
     @Body() createOrderParams: CreateOrderDto,
   ): Promise<void> {
     return this.orderService.processNewOrder(user.userId, createOrderParams);
+  }
+
+  @Get()
+  @HttpCode(200)
+  async listUserOrders(@User() user: AuthUserDto) {
+    return this.orderService.listUserOrders(user.userId);
   }
 }
