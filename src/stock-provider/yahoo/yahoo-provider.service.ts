@@ -5,13 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { YahooStockResponseDto } from './stock-response.dto';
-import { StockProviderService } from '../stock-provider.service';
+import {
+  StockPrice,
+  StockPricesMap,
+  StockProviderService,
+} from '../../portfolio/ports/stock-provider.service';
 
 @Injectable()
 export class YahooStockProvider implements StockProviderService {
   constructor(private readonly httpService: HttpService) {}
 
-  async getLastStockPrice(ticker: string): Promise<number> {
+  async getLastStockPrice(ticker: string): Promise<StockPrice> {
     const response = await this.fetchYahooStock(ticker);
     const yahooStock = response.quoteResponse.result[0];
     if (!yahooStock) {
@@ -21,7 +25,20 @@ export class YahooStockProvider implements StockProviderService {
     return yahooStock.regularMarketPrice;
   }
 
-  async fetchYahooStock(ticker: string): Promise<YahooStockResponseDto> {
+  async getStockPrices(tickers: string[]): Promise<StockPricesMap> {
+    const portfolioStocks = await Promise.all(
+      tickers.map(async (ticker) => [
+        ticker,
+        await this.getLastStockPrice(ticker),
+      ]),
+    );
+
+    return Object.fromEntries(portfolioStocks);
+  }
+
+  private async fetchYahooStock(
+    ticker: string,
+  ): Promise<YahooStockResponseDto> {
     const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${ticker}.SA&fields=regularMarketPrice`;
 
     try {

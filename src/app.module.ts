@@ -10,10 +10,10 @@ import { StockProviderModule } from './stock-provider/stock-provider.module';
   imports: [
     AuthModule,
     PrismaModule,
+    StockProviderModule,
     PortfolioModule,
     OrderModule,
     PositionModule,
-    StockProviderModule,
   ],
 })
 export class AppModule {}

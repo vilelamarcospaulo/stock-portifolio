@@ -2,7 +2,7 @@ import * as nock from 'nock';
 import { Test, TestingModule } from '@nestjs/testing';
 import { YahooStockProvider } from './yahoo-provider.service';
 import { StockProviderModule } from '../stock-provider.module';
-import { StockProviderService } from '../stock-provider.service';
+import { StockProviderService } from '../../portfolio/ports/stock-provider.service';
 
 describe('YahooProvider', () => {
   let service: StockProviderService;
@@ -16,55 +16,99 @@ describe('YahooProvider', () => {
     service = app.get<StockProviderService>(YahooStockProvider);
   });
 
-  it('should call yahoo v7 api with ticker name and return regularMarketPrice', async () => {
-    // ARRANGE
-    nockYahoo('B3SA3.SA').reply(200, {
-      quoteResponse: {
-        result: [{ regularMarketPrice: 10.52 }],
-      },
+  describe('getLastStockPrice', () => {
+    it('should call yahoo v7 api with ticker name and return regularMarketPrice', async () => {
+      // ARRANGE
+      nockYahoo('B3SA3.SA').reply(200, {
+        quoteResponse: {
+          result: [{ regularMarketPrice: 10.52 }],
+        },
+      });
+
+      // ACT
+      const result = await service.getLastStockPrice('B3SA3');
+
+      // ASSERT
+      expect(result).toEqual(10.52);
     });
 
-    // ACT
-    const result = await service.getLastStockPrice('B3SA3');
+    it('should throw not found when api response without info data', async () => {
+      // ARRANGE
+      nockYahoo('FOO3.SA').reply(200, {
+        quoteResponse: {
+          result: [],
+        },
+      });
 
-    // ASSERT
-    expect(result).toEqual(10.52);
-  });
+      // ACT
+      let result: any;
+      try {
+        await service.getLastStockPrice('FOO3');
+      } catch (err) {
+        result = err;
+      }
 
-  it('should throw not found when api response without info data', async () => {
-    // ARRANGE
-    nockYahoo('FOO3.SA').reply(200, {
-      quoteResponse: {
-        result: [],
-      },
+      // ASSERT
+      expect(result.message).toEqual('Not Found');
     });
 
-    // ACT
-    let result: any;
-    try {
-      await service.getLastStockPrice('FOO3');
-    } catch (err) {
-      result = err;
-    }
+    it('should throw Server Error when api response non success code', async () => {
+      // ARRANGE
+      nockYahoo('FOO3.SA').reply(400);
 
-    // ASSERT
-    expect(result.message).toEqual('Not Found');
+      // ACT
+      let result;
+      try {
+        await service.getLastStockPrice('FOO3');
+      } catch (err) {
+        result = err;
+      }
+
+      // ASSERT
+      expect(result.message).toEqual('Error during HTTP request to Yahoo');
+    });
   });
 
-  it('should throw Server Error when api response non success code', async () => {
-    // ARRANGE
-    nockYahoo('FOO3.SA').reply(400);
+  describe('getLastStockPrice', () => {
+    it('should call yahoo v7 api to each ticker and build price map', async () => {
+      // ARRANGE
+      nockYahoo('B3SA3.SA').reply(200, {
+        quoteResponse: {
+          result: [{ regularMarketPrice: 10.52 }],
+        },
+      });
 
-    // ACT
-    let result;
-    try {
-      await service.getLastStockPrice('FOO3');
-    } catch (err) {
-      result = err;
-    }
+      nockYahoo('TRAB3.SA').reply(200, {
+        quoteResponse: {
+          result: [{ regularMarketPrice: 13.51 }],
+        },
+      });
 
-    // ASSERT
-    expect(result.message).toEqual('Error during HTTP request to Yahoo');
+      // ACT
+      const result = await service.getStockPrices(['B3SA3', 'TRAB3']);
+
+      // ASSERT
+      expect(result).toEqual({
+        B3SA3: 10.52,
+        TRAB3: 13.51,
+      });
+    });
+
+    it('should throw Server Error when api response non success code', async () => {
+      // ARRANGE
+      nockYahoo('FOO3.SA').reply(400);
+
+      // ACT
+      let result;
+      try {
+        await service.getStockPrices(['FOO3']);
+      } catch (err) {
+        result = err;
+      }
+
+      // ASSERT
+      expect(result.message).toEqual('Error during HTTP request to Yahoo');
+    });
   });
 });
 
