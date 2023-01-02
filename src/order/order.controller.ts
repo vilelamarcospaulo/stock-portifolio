@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/auth.service';
 import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
@@ -21,7 +21,10 @@ export class OrderController {
 
   @Get()
   @HttpCode(200)
-  async listUserOrders(@User() user: AuthUserDto) {
-    return this.orderService.listUserOrders(user.userId);
+  async listUserOrders(
+    @User() user: AuthUserDto,
+    @Query('ticker') ticker: string | undefined,
+  ) {
+    return this.orderService.listUserOrders(user.userId, ticker);
   }
 }
