@@ -17,9 +17,15 @@ export class YahooStockProvider implements StockProviderService {
 
   async getLastStockPrice(ticker: string): Promise<StockPrice> {
     const response = await this.fetchYahooStock(ticker);
-    const yahooStock = response.quoteResponse.result[0];
+    const yahooStock = response?.quoteResponse?.result?.at(0);
     if (!yahooStock) {
       throw new NotFoundException();
+    }
+
+    if (!yahooStock.regularMarketPrice) {
+      throw new NotFoundException(
+        `Not found 'regularMarketPrice' to ${ticker} `,
+      );
     }
 
     return yahooStock.regularMarketPrice;

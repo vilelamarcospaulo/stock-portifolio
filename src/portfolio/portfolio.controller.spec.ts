@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { prismaServiceMocked } from '../prisma/prisma.service.mock';
 import { AppModule } from '../app.module';
+import { nockYahoo } from 'src/stock-provider/yahoo/yahoo-provider.service.spec';
 
 describe('PortfolioController', () => {
   let app: INestApplication;
@@ -78,6 +79,9 @@ describe('PortfolioController', () => {
   describe('get portfolio distribution', () => {
     it('should return user portfolio distribution goal and current distribution', async () => {
       // ARRANGE
+      nockYahoo('FOO3.SA', 200, 12.5);
+      nockYahoo('TRAB3.SA', 200, 2);
+
       prismaServiceMocked.position.findMany.mockResolvedValue([stock1, stock2]);
 
       // ACT
@@ -86,10 +90,36 @@ describe('PortfolioController', () => {
         .expect(200);
 
       // ASSERT
-      expect(result.body).toEqual([
-        { suggestion: '0.67', current: '0.82', ticker: 'FOO3' },
-        { suggestion: '0.33', current: '0.18', ticker: 'TRAB3' },
-      ]);
+      expect(result.body).toEqual({
+        currentAmount: 97.5,
+        investedAmount: 85,
+        portfolioTotalScore: 12,
+        positions: [
+          {
+            amount: 7,
+            currentAmount: 87.5,
+            distribution: {
+              current: 0.8235294117647058,
+              suggestion: 0.6666666666666666,
+            },
+            investedAmount: 70,
+            middlePrice: 10,
+            ticker: 'FOO3',
+          },
+          {
+            amount: 5,
+            currentAmount: 10,
+            distribution: {
+              current: 0.17647058823529413,
+              suggestion: 0.3333333333333333,
+            },
+            investedAmount: 15,
+            middlePrice: 3,
+            ticker: 'TRAB3',
+          },
+        ],
+      });
+
       expect(prismaServiceMocked.position.findMany).toBeCalledWith({
         where: { userId: 1 },
       });

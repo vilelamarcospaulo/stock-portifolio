@@ -19,11 +19,7 @@ describe('YahooProvider', () => {
   describe('getLastStockPrice', () => {
     it('should call yahoo v7 api with ticker name and return regularMarketPrice', async () => {
       // ARRANGE
-      nockYahoo('B3SA3.SA').reply(200, {
-        quoteResponse: {
-          result: [{ regularMarketPrice: 10.52 }],
-        },
-      });
+      nockYahoo('B3SA3.SA', 200, 10.52);
 
       // ACT
       const result = await service.getLastStockPrice('B3SA3');
@@ -34,11 +30,7 @@ describe('YahooProvider', () => {
 
     it('should throw not found when api response without info data', async () => {
       // ARRANGE
-      nockYahoo('FOO3.SA').reply(200, {
-        quoteResponse: {
-          result: [],
-        },
-      });
+      nockYahoo('FOO3.SA', 200);
 
       // ACT
       let result: any;
@@ -54,7 +46,7 @@ describe('YahooProvider', () => {
 
     it('should throw Server Error when api response non success code', async () => {
       // ARRANGE
-      nockYahoo('FOO3.SA').reply(400);
+      nockYahoo('FOO3.SA', 400);
 
       // ACT
       let result;
@@ -69,20 +61,11 @@ describe('YahooProvider', () => {
     });
   });
 
-  describe('getLastStockPrice', () => {
+  describe('getStockPrices', () => {
     it('should call yahoo v7 api to each ticker and build price map', async () => {
       // ARRANGE
-      nockYahoo('B3SA3.SA').reply(200, {
-        quoteResponse: {
-          result: [{ regularMarketPrice: 10.52 }],
-        },
-      });
-
-      nockYahoo('TRAB3.SA').reply(200, {
-        quoteResponse: {
-          result: [{ regularMarketPrice: 13.51 }],
-        },
-      });
+      nockYahoo('B3SA3.SA', 200, 10.52);
+      nockYahoo('TRAB3.SA', 200, 13.51);
 
       // ACT
       const result = await service.getStockPrices(['B3SA3', 'TRAB3']);
@@ -96,7 +79,7 @@ describe('YahooProvider', () => {
 
     it('should throw Server Error when api response non success code', async () => {
       // ARRANGE
-      nockYahoo('FOO3.SA').reply(400);
+      nockYahoo('FOO3.SA', 400);
 
       // ACT
       let result;
@@ -112,8 +95,18 @@ describe('YahooProvider', () => {
   });
 });
 
-function nockYahoo(symbols: string) {
+export function nockYahoo(
+  symbols: string,
+  responseStatus: number,
+  price?: number,
+) {
+  const responseBody =
+    price !== undefined
+      ? { quoteResponse: { result: [{ regularMarketPrice: price }] } }
+      : undefined;
+
   return nock('https://query1.finance.yahoo.com')
     .get('/v7/finance/quote')
-    .query({ symbols, fields: 'regularMarketPrice' });
+    .query({ symbols, fields: 'regularMarketPrice' })
+    .reply(responseStatus, responseBody);
 }

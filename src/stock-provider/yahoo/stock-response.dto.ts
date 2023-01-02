@@ -1,11 +1,11 @@
 class StockInfo {
-  regularMarketPrice: number;
+  regularMarketPrice?: number;
 }
 
 class QuoteResponse {
-  result: StockInfo[];
+  result?: StockInfo[];
 }
 
 export class YahooStockResponseDto {
-  quoteResponse: QuoteResponse;
+  quoteResponse?: QuoteResponse;
 }

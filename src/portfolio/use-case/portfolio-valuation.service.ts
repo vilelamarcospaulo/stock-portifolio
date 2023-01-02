@@ -22,14 +22,17 @@ export class PortfolioValuation {
     let currentAmount = 0;
     const positions = portfolio.map((position) => {
       const { ticker, amount, middlePrice } = position;
+      const price = portfolioPrices[ticker];
+
       const invested = amount * middlePrice;
-      const current = amount * portfolioPrices[ticker];
+      const current = amount * price;
 
       investedAmount += invested;
       currentAmount += current;
 
       return {
         ...position,
+        price,
         investedAmount: invested,
         currentAmount: current,
       };
