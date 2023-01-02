@@ -1,6 +1,7 @@
 // > ORDER
-//   >> GET ALL
 //   >> DEL => Recalc position
+
+// > LOGs
 
 // > PORTFOLIO
 //   >> QUERY NEW APORT ON POSITIONS
