@@ -24,7 +24,31 @@ export class PortfolioController {
 
   @Get('distribution')
   async distribution(@User() user: AuthUserDto) {
-    return this.portfolioDistribution.calcPortfolioDistribution(user.userId);
+    const { currentAmount, investedAmount, portfolioTotalScore, positions } =
+      await this.portfolioDistribution.calcPortfolioDistribution(user.userId);
+
+    return {
+      currentAmount,
+      investedAmount,
+      portfolioTotalScore,
+      positions: positions.map(
+        ({
+          ticker,
+          amount,
+          middlePrice,
+          investedAmount,
+          currentAmount,
+          distribution,
+        }) => ({
+          ticker,
+          amount,
+          investedAmount,
+          currentAmount,
+          middlePrice,
+          distribution,
+        }),
+      ),
+    };
   }
 
   // @Get('aport-suggestion')
