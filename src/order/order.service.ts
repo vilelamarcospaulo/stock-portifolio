@@ -18,7 +18,11 @@ export class OrderService {
     return orders;
   }
 
-  async processNewOrder(userId: number, createOrderParams: CreateOrderDto) {
+  async newOrder(userId: number, createOrderParams: CreateOrderDto) {
     return this.processOrderService.processNewOrder(userId, createOrderParams);
+  }
+
+  async delete(userId: number, orderId: number) {
+    return this.processOrderService.deleteOrder(userId, orderId);
   }
 }

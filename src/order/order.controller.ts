@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  ParseIntPipe,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/auth.service';
 import { AuthUserDto } from 'src/auth/dto/auth-user.dto';
@@ -16,7 +26,7 @@ export class OrderController {
     @User() user: AuthUserDto,
     @Body() createOrderParams: CreateOrderDto,
   ): Promise<void> {
-    return this.orderService.processNewOrder(user.userId, createOrderParams);
+    return this.orderService.newOrder(user.userId, createOrderParams);
   }
 
   @Get()
@@ -26,5 +36,14 @@ export class OrderController {
     @Query('ticker') ticker: string | undefined,
   ) {
     return this.orderService.listUserOrders(user.userId, ticker);
+  }
+
+  @Delete(':id')
+  @HttpCode(204)
+  async delete(
+    @User() user: AuthUserDto,
+    @Param('id', ParseIntPipe) orderId: number,
+  ) {
+    await this.orderService.delete(user.userId, orderId);
   }
 }
